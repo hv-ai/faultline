@@ -1203,3 +1203,15 @@ body {
     display: none;
   }
 }
+
+.accuracy-note {
+  margin: 14px 0;
+  padding: 12px;
+  background: #edf2f7;
+  border: 1px solid #ccd8e3;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.accuracy-note p {
+  margin: 8px 0;
+}

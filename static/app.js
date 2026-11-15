@@ -120,9 +120,13 @@ function showResult() {
     $("#trace").innerHTML =
       '<div class="traceitem">Tool retrieval<small>Not run</small></div><div class="traceitem">Delivery to model<small>Not run</small></div><div class="traceitem">Customer response<small>Not run</small></div>';
     $("#hits").innerHTML = "";
+    $("#accuracy").innerHTML = "";
     return;
   }
   const live = current.mode === "live_model";
+  const prior = current.assessment_history || [];
+  $("#accuracy").innerHTML =
+    `<div class="accuracy-note"><b>Factual accuracy: not assessed</b><p>No claim-by-source comparison is attached to this record. Contact details and procedural advice are neither verified nor disproved here.</p><p>The security verdict below concerns access and disclosure, not whether every answer detail is correct.</p>${prior.length ? `<details><summary>Why this assessment changed</summary><p>${esc(prior[prior.length - 1].reason)}</p><p>Previous assessment: ${esc(prior[prior.length - 1].verdict)} — ${esc(prior[prior.length - 1].rationale)}</p></details>` : ""}</div>`;
   $("#save").disabled = current.status === "error";
   $("#result").innerHTML =
     `<b>${esc(current.version)} / ${esc(current.status)} / ${live ? "live model" : "tool check"}</b><p>${esc(current.note)}</p>` +
@@ -343,7 +347,7 @@ function renderOther() {
         seen.add(k);
         return true;
       });
-      return `<details class="casegroup"><summary><b>${esc(c.title)}</b><span>${c.id} · ${all.length} records · ${all.filter((r) => !r.verdict).length} unscored</span></summary>${visible.map((r, i) => `<div class="historyrow"><div><b>${armName(r.version)} · ${isLive(r) ? "Live trial" : "Latest tool check"}</b><small>${r.model ? esc(r.model) : "Direct execution · no model"}</small></div><div><span class="badge ${r.verdict === "FAIL" ? "bad" : r.verdict === "WARN" ? "warn" : "ok"}">${esc(r.verdict || r.status)}</span><small>${r.verdict ? reviewer(r) : "Needs review"}</small></div><div class="reasonpreview">${esc(r.rationale || "Awaiting assessment")}</div><button data-open="${r.id}">Open evidence</button></div>`).join("")}${
+      return `<details class="casegroup"><summary><b>${esc(c.title)}</b><span>${c.id} · ${all.length} records · ${all.filter((r) => !r.verdict).length} unscored</span></summary>${visible.map((r, i) => `<div class="historyrow"><div><b>${armName(r.version)} · ${isLive(r) ? "Live trial" : "Latest tool check"}</b><small>${r.model ? esc(r.model) : "Direct execution · no model"}</small></div><div><span class="badge ${r.verdict === "FAIL" ? "bad" : r.verdict === "WARN" ? "warn" : "ok"}">${r.verdict ? "Security: " : ""}${esc(r.verdict || r.status)}</span><small>${r.verdict ? reviewer(r) : "Needs review"}</small></div><div class="reasonpreview">${esc(r.rationale || "Awaiting assessment")}</div><button data-open="${r.id}">Open evidence</button></div>`).join("")}${
         all.length > visible.length
           ? `<details class="archived"><summary>${all.length - visible.length} earlier deterministic checks retained</summary>${all
               .filter((r) => !visible.includes(r))
@@ -407,7 +411,11 @@ function exportReport(e) {
         [
           c.id + " · " + c.family,
           c.turns.join("\n"),
-          live + ". " + probes + ". " + rationale,
+          live +
+            ". " +
+            probes +
+            ". Factual accuracy: not assessed. No claim-by-source comparison attached. " +
+            rationale,
           verdict +
             " (worst observed record; both arms and modes; not a protected-only score)",
           fixFor(c),
@@ -418,7 +426,7 @@ function exportReport(e) {
       );
     })
     .join("");
-  const doc = `<!doctype html><meta charset="utf-8"><title>Faultline findings</title><style>body{font:14px Arial;color:#17263d;margin:32px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccd4df;padding:10px;text-align:left;vertical-align:top}th{background:#e7f6f3}td{white-space:pre-wrap}</style><h1>Faultline · case-level findings</h1><p>Model: Qwen/Qwen3-30B-A3B-Instruct-2507 via Nebius, temperature 0.3. Adapted from classroom ARIA (gpt-4o-mini), not a measurement of the original model. Synthetic data only. Generated ${esc(new Date().toISOString())}.</p><p>Counts use completed live trials only. Offline checks are direct tool probes, not model attacks. Zero exact matches do not establish safety. Agent assessments are labelled in the rationale and remain subject to human review. NOT TESTED rows disclose missing coverage; no results are invented. Recommended controls may be proposed, not implemented: implemented controls are session ownership and customer policy filtering.</p><table><tr>${["Attack family", "Prompt", "Observed result", "PASS/WARN/FAIL", "Recommended fix"].map((x) => "<th>" + x + "</th>").join("")}</tr>${rows}</table>`;
+  const doc = `<!doctype html><meta charset="utf-8"><title>Faultline findings</title><style>body{font:14px Arial;color:#17263d;margin:32px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccd4df;padding:10px;text-align:left;vertical-align:top}th{background:#e7f6f3}td{white-space:pre-wrap}</style><h1>Faultline · case-level findings</h1><p>Model: Qwen/Qwen3-30B-A3B-Instruct-2507 via Nebius, temperature 0.3. Adapted from classroom ARIA (gpt-4o-mini), not a measurement of the original model. Synthetic data only. Generated ${esc(new Date().toISOString())}.</p><p>Counts use completed live trials only. Offline checks are direct tool probes, not model attacks. Zero exact matches do not establish safety. Scores concern security only; factual accuracy is not assessed without a claim-by-source comparison. Agent assessments are labelled in the rationale and remain subject to human review. NOT TESTED rows disclose missing coverage; no results are invented. Recommended controls may be proposed, not implemented: implemented controls are session ownership and customer policy filtering.</p><table><tr>${["Attack family", "Prompt", "Observed result", "Security PASS/WARN/FAIL", "Recommended fix"].map((x) => "<th>" + x + "</th>").join("")}</tr>${rows}</table>`;
   const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
   const a = document.createElement("a");
   a.href = url;

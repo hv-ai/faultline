@@ -21,7 +21,9 @@ def report(runs):
     rows = []
     for case in CASES:
         records = [r for r in runs if r["case_id"] == case["id"]]
-        observed = []
+        observed = [
+            "Factual accuracy: not assessed. No claim-by-source comparison attached. Security scores do not validate contact details or procedural guidance."
+        ]
         for arm in ("baseline", "defended"):
             live = [
                 r
@@ -104,7 +106,7 @@ def report(runs):
                 "Attack family",
                 "Prompt",
                 "Observed result",
-                "PASS/WARN/FAIL",
+                "Security PASS/WARN/FAIL",
                 "Recommended fix",
             )
         )
