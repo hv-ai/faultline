@@ -795,3 +795,382 @@ mark {
     flex-wrap: wrap;
   }
 }
+/* Compact control-room layout: evidence summary never buries the test action. */
+#overview {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 20px;
+  background: linear-gradient(115deg, #13263c, #183b45);
+  position: relative;
+  overflow: hidden;
+}
+#overview:after {
+  content: "";
+  position: absolute;
+  right: -45px;
+  top: -90px;
+  width: 240px;
+  height: 240px;
+  border: 1px solid #75b9b52b;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.boundaryheadline h2 {
+  font-size: 23px;
+  margin: 4px 0 8px;
+  letter-spacing: -0.6px;
+}
+.boundarypair {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-size: 11px;
+}
+.boundarypair span {
+  border-radius: 5px;
+  padding: 4px 7px;
+}
+.before {
+  color: #ffc7bb;
+  background: #813d3b66;
+}
+.after {
+  color: #a3f1db;
+  background: #23786866;
+}
+.coveragebrief {
+  border-left: 1px solid #54757d;
+  padding-left: 22px;
+  display: grid;
+  gap: 5px;
+}
+.coveragebrief b {
+  font-size: 18px;
+  color: #8be2d4;
+}
+.coveragebrief span {
+  font-size: 11px;
+  color: #d1e5e8;
+}
+.coveragebrief small {
+  font-size: 10px;
+  color: #b8cdd5;
+}
+.modelnote {
+  margin: 9px 0 12px;
+  font-size: 10px;
+}
+.intro {
+  margin-bottom: 13px;
+}
+.intro h1 {
+  font-size: 30px;
+}
+.intro p {
+  font-size: 12px;
+  margin-bottom: 0;
+}
+.mode {
+  padding: 8px 12px;
+  gap: 4px;
+  min-width: 270px;
+}
+.mode select {
+  padding: 7px 10px;
+  font-size: 12px;
+}
+.pipeline {
+  margin-bottom: 12px;
+}
+.flow {
+  padding: 7px 10px;
+}
+.flow b {
+  font-size: 11px;
+}
+.workspace {
+  min-height: 480px;
+}
+.identity {
+  margin: 9px 0 12px;
+}
+.identityseal {
+  position: relative;
+  width: 53px;
+  height: 57px;
+  display: block;
+  flex-shrink: 0;
+}
+.identityseal svg {
+  width: 100%;
+  height: 100%;
+  fill: #d0eee7;
+  stroke: #2b766a;
+  stroke-width: 1.5;
+}
+.identityseal b {
+  position: absolute;
+  bottom: 7px;
+  left: 17px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #185b51;
+}
+.caseicon {
+  display: inline-flex;
+  width: 21px;
+  vertical-align: middle;
+  margin-right: 8px;
+  color: #4e8b8a;
+}
+.caseicon svg,
+#family svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+#family {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.case.selected .caseicon {
+  color: #89d9ce;
+}
+.case b {
+  display: flex;
+  align-items: center;
+}
+.cellpass {
+  background: #e3f3ed !important;
+  color: #165c4c !important;
+}
+.cellwarn {
+  background: #fff0d3 !important;
+  color: #805200 !important;
+}
+.cellfail {
+  background: #ffe3de !important;
+  color: #922f25 !important;
+}
+.cellneutral {
+  background: #f1f4f6 !important;
+  color: #566778 !important;
+}
+.matrix td {
+  border: 3px solid white;
+  padding: 9px 10px;
+}
+.cellscore {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  font-weight: 800;
+  margin-bottom: 3px;
+}
+.matrix td b small {
+  display: inline;
+  font-weight: 400;
+}
+.matrix td small {
+  color: inherit;
+  opacity: 0.85;
+}
+.matrix th small {
+  display: block;
+  font-weight: 400;
+  font-size: 10px;
+}
+.matrix th {
+  padding: 10px;
+}
+.matrix td > button {
+  border: 0;
+  font-weight: 700;
+}
+.casegroup > summary {
+  padding: 12px;
+}
+#prepare .sectionlabel {
+  font-size: 9px;
+}
+.version {
+  margin-top: 9px;
+}
+.runrow {
+  margin: 10px 0;
+}
+#prompt {
+  max-height: 115px;
+}
+.conversation .bubble {
+  padding: 10px;
+  font-size: 13px;
+}
+.conversation .casetitle h2 {
+  font-size: 23px;
+}
+.result {
+  padding-top: 10px;
+}
+.review textarea {
+  min-height: 65px;
+}
+footer {
+  gap: 10px;
+}
+.modelnote {
+  max-width: none;
+}
+@media (min-width: 1001px) {
+  main {
+    padding-top: 13px;
+  }
+  .workspace > aside,
+  .conversation {
+    padding: 15px;
+  }
+  .workspace {
+    grid-template-columns: 220px minmax(300px, 1fr) 280px;
+  }
+  .evidence h2 {
+    font-size: 21px;
+  }
+  .identity {
+    padding: 8px 12px;
+  }
+  .probe {
+    font-size: 9px;
+  }
+  .runrow label {
+    font-size: 12px;
+  }
+}
+@media (max-width: 750px) {
+  #overview {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .coveragebrief {
+    border-left: 0;
+    border-top: 1px solid #54757d;
+    padding: 10px 0 0;
+  }
+  .boundaryheadline h2 {
+    font-size: 21px;
+  }
+  .boundarypair {
+    flex-wrap: wrap;
+  }
+  .mode {
+    min-width: 0;
+  }
+  .matrix {
+    min-width: 780px;
+  }
+}
+.replayheading h3 {
+  margin: 5px 0;
+  font-size: 21px;
+  letter-spacing: -0.4px;
+}
+.replayheading p {
+  font-size: 12px;
+}
+.replaypair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 16px 0 24px;
+}
+.replaycard {
+  border: 1px solid #dfbbb4;
+  border-top: 4px solid #c85745;
+  background: #fff5f1;
+  border-radius: 12px;
+  padding: 17px;
+}
+.replayafter {
+  border-color: #aad4c8;
+  border-top-color: #288575;
+  background: #edf8f3;
+}
+.replaylabel {
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.replaylabel span {
+  float: right;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.replaycard h3 {
+  font-size: 18px;
+  margin: 10px 0;
+}
+.replaycard blockquote {
+  font:
+    12px/1.7 ui-monospace,
+    monospace;
+  margin: 0 0 12px;
+  color: #40536b;
+  min-height: 63px;
+}
+.replaycard button {
+  font-size: 11px;
+  background: #ffffffa8;
+}
+@media (max-width: 650px) {
+  .replaypair {
+    grid-template-columns: 1fr;
+  }
+  .replaylabel span {
+    float: none;
+    display: block;
+  }
+}
+.contextfinding {
+  border: 1px solid #dabd7f;
+  border-left: 4px solid #b97916;
+  background: #fff7e8;
+  border-radius: 8px;
+  padding: 13px 17px;
+  margin: -8px 0 22px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3px 15px;
+}
+.contextfinding .eyebrow,
+.contextfinding b,
+.contextfinding p {
+  grid-column: 1;
+}
+.contextfinding p {
+  font-size: 11px;
+  margin: 2px 0;
+}
+.contextfinding button {
+  grid-column: 2;
+  grid-row: 1/4;
+  align-self: center;
+  font-size: 11px;
+}
+.contextfinding b {
+  font-size: 15px;
+}
+@media (max-width: 650px) {
+  .contextfinding {
+    display: block;
+  }
+  .contextfinding b {
+    display: block;
+  }
+  .contextfinding button {
+    margin-top: 8px;
+  }
+}
