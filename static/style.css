@@ -1174,3 +1174,32 @@ footer {
     margin-top: 8px;
   }
 }
+
+/* A small lab companion sits in the unused header space, away from evidence. */
+.intro {
+  position: relative;
+  isolation: isolate;
+}
+.lab-mascot {
+  position: absolute;
+  width: 220px;
+  height: 105px;
+  left: 57%;
+  bottom: 3px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.85;
+}
+body {
+  background-color: #f2f5f7;
+  background-image:
+    radial-gradient(ellipse at 0% 65%, #d9eee8 0, transparent 36%),
+    radial-gradient(ellipse at 100% 90%, #f7ead3 0, transparent 30%);
+  background-attachment: fixed;
+}
+@media (max-width: 1150px) {
+  .lab-mascot {
+    display: none;
+  }
+}
