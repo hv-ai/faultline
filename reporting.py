@@ -20,6 +20,7 @@ def fix_for(case):
 def report(runs):
     user_count = sum(r.get("reviewer") == "user" for r in runs)
     agent_count = sum(r.get("reviewer") == "agent" for r in runs)
+    unscored_count = sum(not r.get("verdict") for r in runs)
     rows = []
     for case in CASES:
         records = [r for r in runs if r["case_id"] == case["id"]]
@@ -102,7 +103,7 @@ def report(runs):
 <p>Offline probes are not model attacks. Zero exact matches do not prove safety. Case score is the worst observed record across both arms and modes, not a protected-only score. Agent assessments are labelled and await human confirmation. NOT TESTED is not a pass. Proposed controls are explicitly distinguished from implemented ones.</p>
 <p>Generated """
         + datetime.now(timezone.utc).isoformat()
-        + f". Review attribution: {user_count} user-reviewed records; {agent_count} AI-assisted records."
+        + f". Review attribution: {user_count} user-reviewed records; {agent_count} AI-assisted records; {unscored_count} unscored records."
         + """</p><table><tr>"""
         + "".join(
             "<th>" + x + "</th>"
