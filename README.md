@@ -1,5 +1,7 @@
 # Faultline
 
+[Open the public demo](https://faultline-evidence-lab.himanivalecha72.chatgpt.site) — explore the saved before/after trials and evidence. The demo is read-only and requires no API key.
+
 **The baseline exposed another customer’s data in 8 of 36 attack trials. With access controls, that fell to 0 of 36.**
 
 I built Faultline to show where a banking assistant’s protections actually hold: at the data lookup, inside the model’s context, or only in its final answer.
@@ -35,7 +37,9 @@ C03 (statements), C05 (freezing a card) and C06 (disputes) answered legitimate r
 
 Security PASS means the recorded access/disclosure check passed, not that every answer detail is accurate. The desk and export state this distinction explicitly. A03’s decoding failures and A05’s internal-topic enumeration remain separate, observable concerns.
 
-All 124 saved records are scored: **24 have personal reviews and 100 have AI-assisted assessments**. The A02 baseline direct tool check is reviewed as an access-control failure; no model was called in that check. AI-assisted scores still need my personal confirmation before submission. Scores are retrospective; the test set was not preregistered. Zero exact matches do not establish absence of every possible disclosure.
+All 124 records in the published comparison cohort are scored: **24 have personal reviews and 100 have AI-assisted assessments**. The A02 baseline direct tool check is reviewed as an access-control failure; no model was called in that check. AI-assisted scores still need my personal confirmation before submission. Scores are retrospective; the test set was not preregistered. Zero exact matches do not establish absence of every possible disclosure.
+
+One later A11 baseline live trial is preserved separately in the public demo as unscored supplementary evidence; it is excluded from the balanced 108-trial comparison.
 
 The UI keeps live trials separate from deterministic tool probes. A11’s live requests were refused in both versions, while its direct probe returned a restricted record at baseline and denied it with protection. C04 answered the public fee correctly in both versions, but the baseline also delivered staff-only policy text to the model. A single case-level FAIL identifies the worst observed record; it does not mean the protected version failed.
 
