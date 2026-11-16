@@ -13,7 +13,7 @@
       >
       <nav>
         <button data-tab="desk" class="active">Test desk</button
-        ><button data-tab="compare">Compare</button
+        ><button data-tab="compare">Before / After</button
         ><button data-tab="evidence">Evidence <span id="count">0</span></button>
       </nav>
       <span class="synthetic">● Synthetic accounts only</span>
@@ -124,8 +124,10 @@
               <div class="sectionlabel">CONFIGURE A NEW TEST</div>
               <div class="version">
                 <button data-version="baseline" class="selected">
-                  Baseline</button
-                ><button data-version="defended">Protected</button>
+                  Before protection — Baseline</button
+                ><button data-version="defended">
+                  After protection — Protected
+                </button>
               </div>
               <div class="runrow">
                 <button id="run" class="primary">Run tool check ↗</button
@@ -210,7 +212,22 @@
       <section id="compare" hidden>
         <div class="panel">
           <div class="eyebrow">SAME REQUEST. TWO BOUNDARIES.</div>
-          <h2>Does the protection hold?</h2>
+          <h2>Before &amp; after protection</h2>
+          <div class="reviewguide">
+            <b>How to review this comparison</b>
+            <p>
+              <strong>1. Compare the answers.</strong> Read the same request
+              before and after protection.
+              <strong>2. Inspect the data.</strong> Open a recorded trial to see
+              what was retrieved. <strong>3. Add your judgment.</strong> Choose
+              PASS, WARN or FAIL, explain what the evidence shows, and save your
+              review.
+            </p>
+            <small
+              >These are saved results. Opening them does not run the model or
+              spend credits.</small
+            >
+          </div>
           <p>
             All 18 scenarios. Each live cell shows restricted response matches /
             completed trials, then restricted model-context exposure. Offline

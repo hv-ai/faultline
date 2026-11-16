@@ -1899,3 +1899,69 @@ body[data-view="evidence"] .mode {
 .outcomeclear {
   color: #285a45;
 }
+
+/* Give first-time reviewers an explicit starting point. */
+.storynav button[data-journey="compare"] {
+  background: #d8f3e4;
+  border: 2px solid #44856b;
+  box-shadow: 0 3px 12px #245d3410;
+}
+.storynav button[data-journey="compare"] b {
+  color: #174f37;
+}
+.reviewguide {
+  padding: 15px 18px;
+  margin: 16px 0;
+  border: 1px solid #bbd9c6;
+  border-left: 4px solid #44856b;
+  border-radius: 9px;
+  background: #f0f8f2;
+}
+.reviewguide > b {
+  font-size: 14px;
+}
+.reviewguide p {
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 8px 0;
+}
+.reviewguide small {
+  font-size: 11px;
+  color: #3c6b53;
+}
+.replaylabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.replaylabel span {
+  float: none;
+  flex-shrink: 0;
+}
+.metric > span {
+  letter-spacing: 1px;
+  display: block;
+  max-width: 190px;
+}
+#prepare .version {
+  flex-wrap: wrap;
+}
+#prepare .version button {
+  font-size: 11px;
+  padding: 8px 10px;
+}
+@media (max-width: 700px) {
+  .reviewguide {
+    padding: 13px;
+  }
+  .reviewguide strong {
+    display: block;
+    margin-top: 8px;
+  }
+  .metric > span {
+    font-size: 9px;
+    max-width: 130px;
+  }
+}

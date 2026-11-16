@@ -178,7 +178,10 @@ function showResult() {
   $("#hits").innerHTML =
     `<div class="hits"><b>${live ? hits.length + " restricted response matches" : "Response not tested"}</b><p>Restricted tool material: ${current.events.some((e) => e.unauthorized) ? "Yes" : "No"}</p><p>Exact matches require human interpretation; absence does not prove safety.</p></div>`;
 }
-const armName = (v) => (v === "defended" ? "Protected" : "Baseline");
+const armName = (v) =>
+  v === "defended"
+    ? "After protection — Protected"
+    : "Before protection — Baseline";
 const isLive = (r) => r.mode === "live_model";
 const leak = (r) =>
   (r.hits || []).some((h) => h.classification === "restricted_match");
@@ -328,13 +331,13 @@ function renderOther() {
       reviewer(r) === "User reviewed" || reviewer(r) === "Legacy user review",
   ).length;
   $("#overview").innerHTML =
-    `<div class="boundaryheadline"><span class="eyebrow">OBSERVED IN LIVE ATTACK TRIALS</span><h2>Same attacks. <br>Different access boundaries.</h2><p>Restricted values appeared in ${base.filter(leak).length} baseline responses and ${prot.filter(leak).length} protected responses.</p><small>Seeded-value detection · Qwen · descriptive results, not a safety guarantee</small></div><div class="metriccomparison"><div class="metric baseline"><span>BASELINE</span><strong>${base.filter(leak).length}<em> / ${base.length}</em></strong><small>attack trials with response matches</small></div><span class="metricarrow" aria-hidden="true">→</span><div class="metric protected"><span>PROTECTED</span><strong>${prot.filter(leak).length}<em> / ${prot.length}</em></strong><small>attack trials with response matches</small></div></div><div class="overviewfoot"><span><b>${tested.length + legit.length}/18</b> scenarios tested live</span><span><b>${live.length}</b> completed live trials</span><span><b>${personal}/${state.runs.length}</b> personally reviewed</span><span>Fictional accounts · real executions</span></div>`;
+    `<div class="boundaryheadline"><span class="eyebrow">OBSERVED IN LIVE ATTACK TRIALS</span><h2>Same attacks. <br>Different access boundaries.</h2><p>Restricted values appeared in ${base.filter(leak).length} baseline responses and ${prot.filter(leak).length} protected responses.</p><small>Seeded-value detection · Qwen · descriptive results, not a safety guarantee</small></div><div class="metriccomparison"><div class="metric baseline"><span>BEFORE PROTECTION · BASELINE</span><strong>${base.filter(leak).length}<em> / ${base.length}</em></strong><small>attack trials with response matches</small></div><span class="metricarrow" aria-hidden="true">→</span><div class="metric protected"><span>AFTER PROTECTION · PROTECTED</span><strong>${prot.filter(leak).length}<em> / ${prot.length}</em></strong><small>attack trials with response matches</small></div></div><div class="overviewfoot"><span><b>${tested.length + legit.length}/18</b> scenarios tested live</span><span><b>${live.length}</b> completed live trials</span><span><b>${personal}/${state.runs.length}</b> personally reviewed</span><span>Fictional accounts · real executions</span></div>`;
   const journeys = [
     [
       "A01",
       "01",
-      "See the before & after",
-      "A real disclosure, then the protected replay.",
+      "Start here: see a saved before-and-after",
+      "Open recorded results · no new run or credits needed.",
       "compare",
     ],
     [
@@ -386,7 +389,7 @@ function renderOther() {
   $("#reviewprogress").innerHTML =
     `<b>${personal} personal reviews</b><small>${state.runs.length - personal} other records · opening evidence is free</small>`;
   $("#comparison").innerHTML =
-    `${featuredComparison()}<div class="matrixwrap"><table class="matrix"><thead><tr><th>Scenario</th><th>Baseline · live</th><th>Protected · live</th><th>Direct tool probe<br>Baseline → Protected</th><th>Case verdict<small>Worst observed record</small></th></tr></thead><tbody>${state.cases
+    `${featuredComparison()}<div class="matrixwrap"><table class="matrix"><thead><tr><th>Scenario</th><th>Before protection<small>Baseline · live</small></th><th>After protection<small>Protected · live</small></th><th>Direct tool probe<br>Baseline → Protected</th><th>Case verdict<small>Worst observed record</small></th></tr></thead><tbody>${state.cases
       .map((c) => {
         const cells = ["baseline", "defended"]
           .map((v) => {
