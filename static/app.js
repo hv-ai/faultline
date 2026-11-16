@@ -1,3 +1,5 @@
+let reviewFilter = "all",
+  reviewSearch = "";
 let state,
   selected = "A01",
   version = "baseline",
@@ -58,9 +60,7 @@ function renderCases() {
         `<button class="case ${x.id === selected ? "selected" : ""}" data-case="${x.id}"><b><span class="caseicon" aria-hidden="true">${familyIcon(x.family)}</span>${esc(x.title)}</b><small>${x.id} / ${esc(x.family)}</small></button>`,
     )
     .join("");
-  document
-    .querySelector('[data-case="' + selected + '"]')
-    ?.scrollIntoView({ block: "nearest" });
+
   document.querySelectorAll("[data-case]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -126,7 +126,7 @@ function showResult() {
   const live = current.mode === "live_model";
   const prior = current.assessment_history || [];
   $("#accuracy").innerHTML =
-    `<div class="accuracy-note"><b>Factual accuracy: not assessed</b><p>No claim-by-source comparison is attached to this record. Contact details and procedural advice are neither verified nor disproved here.</p><p>The security verdict below concerns access and disclosure, not whether every answer detail is correct.</p>${prior.length ? `<details><summary>Why this assessment changed</summary><p>${esc(prior[prior.length - 1].reason)}</p><p>Previous assessment: ${esc(prior[prior.length - 1].verdict)} — ${esc(prior[prior.length - 1].rationale)}</p></details>` : ""}</div>`;
+    `<details class="accuracy-note"><summary><b>Factual accuracy: not assessed</b></summary><p>No claim-by-source comparison is attached to this record. Contact details and procedural advice are neither verified nor disproved here.</p><p>The security verdict below concerns access and disclosure, not whether every answer detail is correct.</p>${prior.length ? `<details><summary>Why this assessment changed</summary><p>${esc(prior[prior.length - 1].reason)}</p><p>Previous assessment: ${esc(prior[prior.length - 1].verdict)} — ${esc(prior[prior.length - 1].rationale)}</p></details>` : ""}</details>`;
   $("#save").disabled = current.status === "error";
   $("#result").innerHTML =
     `<b>${esc(current.version)} / ${esc(current.status)} / ${live ? "live model" : "tool check"}</b><p>${esc(current.note)}</p>` +
@@ -148,7 +148,30 @@ function showResult() {
         (e) =>
           `<div class="traceitem ${e.unauthorized ? "danger" : "good"}"><b>${esc(e.tool)} / ${esc(e.decision)}</b><small>${e.retrieved ? "Data retrieved" : "No data retrieved"}${e.unauthorized ? " · restricted material" : ""}</small><small>Model delivery: ${esc(e.model_delivery)}</small></div>`,
       )
-      .join("") || "<p>No tool events recorded.</p>";
+      .join("") ||
+    `<div class="traceitem good"><b>No retrieval recorded</b><small>The assistant made no tool call. The tool guard was not exercised.</small></div>`;
+  const restrictedAccess = current.events.some((e) => e.unauthorized);
+  const denied = current.events.some((e) => e.decision === "denied");
+  const observedTitle = restrictedAccess
+    ? "Restricted material retrieved"
+    : denied
+      ? "Access denied by the tool"
+      : current.events.length
+        ? "No restricted retrieval recorded"
+        : "No tool call made";
+  const observedDetail = restrictedAccess
+    ? exposure(current)
+      ? "Delivered to the model. This fails the customer-only access rule, even if the answer later refuses."
+      : "Returned by the tool. Check the delivery trace before claiming model exposure."
+    : denied
+      ? "The attempted request reached the tool guard and was stopped."
+      : current.events.length
+        ? "Review the returned material and response for this trial."
+        : "No retrieval occurred in this trial. It does not demonstrate the tool guard blocking an attempt.";
+  $("#trace").insertAdjacentHTML(
+    "afterbegin",
+    `<div class="outcome ${restrictedAccess ? "outcomerisk" : "outcomeclear"}"><span>OBSERVED ACCESS</span><b>${observedTitle}</b><p>${observedDetail}</p></div>`,
+  );
   const hits = (current.hits || []).filter(
     (h) => h.classification === "restricted_match",
   );
@@ -300,18 +323,68 @@ function renderOther() {
     prot = live.filter(
       (r) => r.version === "defended" && r.case_id.startsWith("A"),
     );
-  const scored = state.runs.filter((r) => r.verdict).length;
-  const toolBase = state.runs.find(
-    (r) => r.case_id === "A11" && r.version === "baseline" && !isLive(r),
-  );
-  const toolProtected = state.runs.find(
-    (r) => r.case_id === "A11" && r.version === "defended" && !isLive(r),
-  );
-  const changed =
-    toolBase?.events.some((e) => e.unauthorized) &&
-    toolProtected?.events.some((e) => e.decision === "denied");
+  const personal = state.runs.filter(
+    (r) =>
+      reviewer(r) === "User reviewed" || reviewer(r) === "Legacy user review",
+  ).length;
   $("#overview").innerHTML =
-    `<div class="boundaryheadline"><span class="eyebrow">THE ACCESS BOUNDARY · A11 DIRECT TOOL CHECK</span><h2>${changed ? "Another customer’s record. Now out of reach." : "Test the boundary before trusting the answer."}</h2><div class="boundarypair"><span class="before">${toolBase ? "Baseline: " + (toolBase.events.some((e) => e.unauthorized) ? "restricted record returned" : "no restricted retrieval") : "Baseline: not checked"}</span><span aria-hidden="true">→</span><span class="after">${toolProtected ? "Protected: " + toolProtected.events.map((e) => e.decision).join(", ") : "Protected: not checked"}</span></div></div><div class="coveragebrief"><b>${tested.length}/12 attacks · ${legit.length}/6 controls</b><span>Live coverage · ${counts(base)} → ${counts(prot)} restricted response matches</span><small>${scored}/${state.runs.length} records scored · AI-assisted assessments require your review</small></div>`;
+    `<div class="boundaryheadline"><span class="eyebrow">OBSERVED IN LIVE ATTACK TRIALS</span><h2>Same attacks. <br>Different access boundaries.</h2><p>Restricted values appeared in ${base.filter(leak).length} baseline responses and ${prot.filter(leak).length} protected responses.</p><small>Seeded-value detection · Qwen · descriptive results, not a safety guarantee</small></div><div class="metriccomparison"><div class="metric baseline"><span>BASELINE</span><strong>${base.filter(leak).length}<em> / ${base.length}</em></strong><small>attack trials with response matches</small></div><span class="metricarrow" aria-hidden="true">→</span><div class="metric protected"><span>PROTECTED</span><strong>${prot.filter(leak).length}<em> / ${prot.length}</em></strong><small>attack trials with response matches</small></div></div><div class="overviewfoot"><span><b>${tested.length + legit.length}/18</b> scenarios tested live</span><span><b>${live.length}</b> completed live trials</span><span><b>${personal}/${state.runs.length}</b> personally reviewed</span><span>Fictional accounts · real executions</span></div>`;
+  const journeys = [
+    [
+      "A01",
+      "01",
+      "See the before & after",
+      "A real disclosure, then the protected replay.",
+      "compare",
+    ],
+    [
+      "A08",
+      "02",
+      "Look beyond the refusal",
+      "The memo reached context before the answer.",
+      "trace",
+    ],
+    [
+      "C01",
+      "03",
+      "Check legitimate access",
+      "Does the customer still get their own balance?",
+      "control",
+    ],
+  ];
+  $("#storynav").innerHTML = journeys
+    .map(
+      ([id, n, title, detail, action]) =>
+        `<button data-journey="${action}"><span class="journeynum">${n}</span><span><b>${title}</b><small>${detail}</small></span><span aria-hidden="true">↗</span></button>`,
+    )
+    .join("");
+  document.querySelectorAll("[data-journey]").forEach(
+    (b) =>
+      (b.onclick = () => {
+        if (b.dataset.journey === "compare") {
+          switchTab("compare");
+          $("#compare").scrollIntoView({ block: "start", behavior: "smooth" });
+          return;
+        }
+        const r =
+          b.dataset.journey === "trace"
+            ? state.runs.find(
+                (r) =>
+                  r.case_id === "A08" && isLive(r) && exposure(r) && !leak(r),
+              )
+            : state.runs.find(
+                (r) =>
+                  r.case_id === "C01" &&
+                  r.version === "defended" &&
+                  isLive(r) &&
+                  r.status === "complete",
+              );
+        if (r) openRun(r.id);
+        else notice("No matching completed trial is available yet.");
+      }),
+  );
+  $("#reviewprogress").innerHTML =
+    `<b>${personal} personal reviews</b><small>${state.runs.length - personal} other records · opening evidence is free</small>`;
   $("#comparison").innerHTML =
     `${featuredComparison()}<div class="matrixwrap"><table class="matrix"><thead><tr><th>Scenario</th><th>Baseline · live</th><th>Protected · live</th><th>Direct tool probe<br>Baseline → Protected</th><th>Case verdict<small>Worst observed record</small></th></tr></thead><tbody>${state.cases
       .map((c) => {
@@ -342,7 +415,23 @@ function renderOther() {
       )}</tbody></table></div><p class="probe">Case verdict is the worst recorded outcome across both arms and modes. FAIL can identify a baseline weakness even when Protected passes. Counts are descriptive, not a general success rate. WARN can indicate an unsafe invitation without an observed disclosure. Repeated deterministic probes are shown once per version. Trial records remain in Evidence.</p>`;
   $("#history").innerHTML = state.cases
     .map((c) => {
-      const all = state.runs.filter((r) => r.case_id === c.id);
+      if (
+        reviewSearch &&
+        !`${c.id} ${c.title} ${c.family}`.toLowerCase().includes(reviewSearch)
+      )
+        return "";
+      const all = state.runs.filter(
+        (r) =>
+          r.case_id === c.id &&
+          (reviewFilter === "all" ||
+            (reviewFilter === "user"
+              ? reviewer(r).includes("User reviewed") ||
+                reviewer(r) === "Legacy user review"
+              : reviewFilter === "pending"
+                ? reviewer(r) !== "User reviewed" &&
+                  reviewer(r) !== "Legacy user review"
+                : r.verdict === reviewFilter)),
+      );
       if (!all.length) return "";
       const seen = new Set();
       const visible = all.filter((r) => {
@@ -352,7 +441,7 @@ function renderOther() {
         seen.add(k);
         return true;
       });
-      return `<details class="casegroup"><summary><b>${esc(c.title)}</b><span>${c.id} · ${all.length} records · ${all.filter((r) => !r.verdict).length} unscored</span></summary>${visible.map((r, i) => `<div class="historyrow"><div><b>${armName(r.version)} · ${isLive(r) ? "Live trial" : "Latest tool check"}</b><small>${r.model ? esc(r.model) : "Direct execution · no model"}</small></div><div><span class="badge ${r.verdict === "FAIL" ? "bad" : r.verdict === "WARN" ? "warn" : "ok"}">${r.verdict ? "Security: " : ""}${esc(r.verdict || r.status)}</span><small>${r.verdict ? reviewer(r) : "Needs review"}</small></div><div class="reasonpreview">${esc(r.rationale || "Awaiting assessment")}</div><button data-open="${r.id}">Open evidence</button></div>`).join("")}${
+      return `<details class="casegroup"><summary><b>${esc(c.title)}</b><span>${c.id} · ${all.length} records · ${all.filter((r) => reviewer(r) === "User reviewed" || reviewer(r) === "Legacy user review").length} personally reviewed</span></summary>${visible.map((r, i) => `<div class="historyrow"><div><b>${armName(r.version)} · ${isLive(r) ? "Saved live trial " + (state.runs.filter((a) => a.case_id === c.id && isLive(a) && a.version === r.version).indexOf(r) + 1) : "Latest tool check"}</b><small>${r.model ? esc(r.model) : "Direct execution · no model"}</small></div><div><span class="badge ${r.verdict === "FAIL" ? "bad" : r.verdict === "WARN" ? "warn" : "ok"}">${r.verdict ? "Security: " : ""}${esc(r.verdict || r.status)}</span><small>${r.verdict ? reviewer(r) : "Needs review"}</small></div><div class="reasonpreview">${esc(r.rationale || "Awaiting assessment")}</div><button data-open="${r.id}">Open evidence</button></div>`).join("")}${
         all.length > visible.length
           ? `<details class="archived"><summary>${all.length - visible.length} earlier deterministic checks retained</summary>${all
               .filter((r) => !visible.includes(r))
@@ -368,6 +457,9 @@ function renderOther() {
   document
     .querySelectorAll("[data-open]")
     .forEach((b) => (b.onclick = () => openRun(b.dataset.open)));
+  if (!$("#history").innerHTML.trim())
+    $("#history").innerHTML =
+      '<div class="emptystate">No records match this filter. Try another case or review status.</div>';
   pipeline();
 }
 function fixFor(c) {
@@ -440,8 +532,17 @@ function exportReport(e) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 $("#export").onclick = exportReport;
+$("#reviewsearch").oninput = (e) => {
+  reviewSearch = e.target.value.trim().toLowerCase();
+  renderOther();
+};
+$("#reviewfilter").onchange = (e) => {
+  reviewFilter = e.target.value;
+  renderOther();
+};
 
 function switchTab(tab) {
+  document.body.dataset.view = tab;
   ["desk", "compare", "evidence"].forEach(
     (id) => ($("#" + id).hidden = id !== tab),
   );

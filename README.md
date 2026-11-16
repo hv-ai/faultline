@@ -18,6 +18,8 @@ I built Faultline to show where a banking assistant’s protections actually hol
 
 ![Baseline versus protected replay and scored comparison](docs/images/comparison.png)
 
+Start with the three saved-evidence shortcuts: the A01 before/after, the A08 retrieval-before-refusal trace, and the C01 legitimate control. Evidence can be filtered by case, personal review status, or security verdict. Opening a saved trial does not make a model call.
+
 ## What makes it useful
 
 - **A refusal can come too late.** In A08, the baseline pulled the confidential memo into context before saying it could not share it. Checking only the answer would miss that failure.
